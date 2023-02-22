@@ -6,11 +6,6 @@ from projectApp.models import MasterTable
 def home(request, user):
     table=MasterTable.objects.all()
     user=table.filter(user=user)
-    '''for sec in user:
-        s=user.filter(section=sec)
-        for page in s.page.all():
-            data={**data, s.section: page}
-    return Response(data)'''
     sections=[]
     pages=[]
     for i in user:
