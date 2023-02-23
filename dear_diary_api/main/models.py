@@ -1,6 +1,10 @@
 from django.db import models
 
 # Create your models here.
+class userLogin(models.Model):
+    userid=models.CharField(max_length=14,primary_key=True)
+    pswd=models.CharField(max_length=30)
+    
 class MasterTable(models.Model):
     userdataid =  models.IntegerField(primary_key='True')
     user = models.CharField('User Id',max_length=50)
@@ -9,6 +13,4 @@ class MasterTable(models.Model):
     data = models.CharField(max_length=500) 
     def __int__(self):
         return self.userdataid
-    
-    
     
