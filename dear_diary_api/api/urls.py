@@ -7,5 +7,6 @@ urlpatterns=[
     path('',views.landing),
     path('api/',views.api),
     path('register/',views.addUser),
-    path("<str:id>",views.userExist),
+    path('<str:id>',views.userExist),
+    path('renamePage/', views.renamePage),
 ]
