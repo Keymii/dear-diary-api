@@ -32,5 +32,5 @@ def addUser(request):
     return HttpResponse("User Alrady exist")
 
 @api_view(['GET'])
-def home(request):
+def landing(request):
     return HttpResponse("Home Page")
