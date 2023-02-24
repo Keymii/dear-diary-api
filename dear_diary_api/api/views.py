@@ -1,8 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from main.models import MasterTable
+from main.models import MasterTable,userLogin
 from django.http import HttpResponse,JsonResponse
-from main.models import userLogin
 from .serializers import userLoginSerializer
 
 @api_view(['Get'])
@@ -11,6 +10,7 @@ def api(request):
         'Home':'',
         'Register':'register/',
         'userExist':'checkuser/',
+        'userAuthantication':'user/auth/',
         'api':'api/',
 
     }
@@ -48,6 +48,15 @@ def userExist(request,id):
          if str(id)==str(i.userid):
             return HttpResponse("True")
         
+    return HttpResponse("False")
+
+@api_view(['POST'])
+def userAuth(request):
+    user=userLogin.objects.all()
+    inUser=request.data
+    for i in user:
+        if ((str(i.userid)==str(inUser['userid'])) & (str(i.pswd) == str(inUser['pswd']))):
+            return HttpResponse("True")
     return HttpResponse("False")
 
 @api_view(['Get'])
