@@ -4,7 +4,8 @@ from main.models import MasterTable,userLogin
 from django.http import HttpResponse,JsonResponse
 from django.shortcuts import redirect
 from main.models import userLogin
-from .serializers import userLoginSerializer, MasterTableSerializer
+from .serializers import userLoginSerializer,MasterTableSerializer 
+from rest_framework import status
 
 @api_view(['Get'])
 def api(request):
@@ -14,8 +15,7 @@ def api(request):
         'userExist':'checkuser/',
         'userAuthantication':'user/auth/',
         'api':'api/',
-
-    }
+        }
     return Response(ls_api)
 
 @api_view(['GET'])
@@ -65,6 +65,31 @@ def userAuth(request):
 def landing(request):
     return HttpResponse('<h1>Home Page</h1>')
 
+@api_view(['GET'])
+def pagedata(request,user,section,page):
+    table=MasterTable.objects.all()
+    pageData=table.filter(user=user,section=section,page=page)
+    serializer= MasterTableSerializer(pageData,many=True)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def pagedatacreate(request,user,section,page):
+    dataReceived = request.data
+    serializer = MasterTableSerializer(data=dataReceived)
+    if MasterTable.objects.filter(**dataReceived).exists():
+        return Response(status=status.HTTP_403_FORBIDDEN)
+    elif serializer.is_valid():
+        serializer.save()
+    return Response(serializer.data)
+@api_view(['PUT'])
+
+def pagedataupdate(request,user,section,page):
+    table=MasterTable.objects.get(user=user,section=section,page=page)
+    serializer=MasterTableSerializer(instance=table, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+    return Response(serializer.data)   
+    
 @api_view(['GET', 'POST'])
 def renamePage(request):
     user=request.GET.get('user')
