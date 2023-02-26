@@ -5,6 +5,7 @@ from django.http import HttpResponse,JsonResponse
 from django.shortcuts import redirect
 from main.models import userLogin
 from .serializers import userLoginSerializer, MasterTableSerializer
+import json
 
 @api_view(['Get'])
 def api(request):
@@ -33,6 +34,7 @@ def home(request, user):
             section_page.append(j.page)
         pages.append(section_page)
     data=dict(zip(sections, pages))
+    print(type(data))
     return Response(data)
 
 @api_view(['POST'])
