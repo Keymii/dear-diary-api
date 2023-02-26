@@ -2,7 +2,9 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from main.models import MasterTable,userLogin
 from django.http import HttpResponse,JsonResponse
-from .serializers import userLoginSerializer
+from django.shortcuts import redirect
+from main.models import userLogin
+from .serializers import userLoginSerializer, MasterTableSerializer
 
 @api_view(['Get'])
 def api(request):
@@ -62,3 +64,16 @@ def userAuth(request):
 @api_view(['Get'])
 def landing(request):
     return HttpResponse('<h1>Home Page</h1>')
+
+@api_view(['GET', 'POST'])
+def renamePage(request):
+    user=request.GET.get('user')
+    section=request.GET.get('section')
+    page=request.GET.get('page')
+    new_page=request.GET.get('new_page')
+    t=MasterTable.objects.get(user=user, section=section, page=page)
+    t.page=new_page
+    t.save()
+    return redirect('/home/%s' %user)
+    
+

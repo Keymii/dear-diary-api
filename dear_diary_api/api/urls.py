@@ -8,4 +8,5 @@ urlpatterns=[
     path('register/',views.addUser),
     path("<str:id>",views.userExist),
     path("user/auth/",views.userAuth),
+    path('renamePage/', views.renamePage),
 ]
