@@ -1,11 +1,10 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from main.models import MasterTable
+from main.models import MasterTable,userLogin
 from django.http import HttpResponse,JsonResponse
 from django.shortcuts import redirect
 from main.models import userLogin
 from .serializers import userLoginSerializer, MasterTableSerializer
-import json
 
 @api_view(['Get'])
 def api(request):
@@ -13,6 +12,7 @@ def api(request):
         'Home':'',
         'Register':'register/',
         'userExist':'checkuser/',
+        'userAuthantication':'user/auth/',
         'api':'api/',
 
     }
@@ -34,7 +34,6 @@ def home(request, user):
             section_page.append(j.page)
         pages.append(section_page)
     data=dict(zip(sections, pages))
-    print(type(data))
     return Response(data)
 
 @api_view(['POST'])
@@ -53,6 +52,15 @@ def userExist(request,id):
         
     return HttpResponse("False")
 
+@api_view(['POST'])
+def userAuth(request):
+    user=userLogin.objects.all()
+    inUser=request.data
+    for i in user:
+        if ((str(i.userid)==str(inUser['userid'])) & (str(i.pswd) == str(inUser['pswd']))):
+            return HttpResponse("True")
+    return HttpResponse("False")
+
 @api_view(['Get'])
 def landing(request):
     return HttpResponse('<h1>Home Page</h1>')
@@ -67,5 +75,13 @@ def renamePage(request):
     t.page=new_page
     t.save()
     return redirect('/home/%s' %user)
-    
+
+@api_view(['GET', 'DELETE'])
+def deletePage(request):
+    user=request.GET.get('user')
+    section=request.GET.get('section')
+    page=request.GET.get('page')
+    t=MasterTable.objects.get(user=user, section=section, page=page)
+    t.delete()
+    return redirect('/home/%s' %user)
 

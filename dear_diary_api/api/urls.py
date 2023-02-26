@@ -9,4 +9,5 @@ urlpatterns=[
     path('register/',views.addUser),
     path('<str:id>',views.userExist),
     path('renamePage/', views.renamePage),
+    path('deletePage/', views.deletePage),
 ]
