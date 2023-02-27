@@ -15,13 +15,18 @@ def api(request):
         'userExist':'checkuser/',
         'userAuthantication':'user/auth/',
         'api':'api/',
+        'renamePage':'renamePage/',
+        'creating pageData':'home/userid/section/page/createpagedata/',
+        'Updating pageData':'home/userid/section/page/updatepagedata/',
+        'Showing pageData':'home/userid/section/page/',
+
         }
     return Response(ls_api)
 
 @api_view(['GET'])
-def home(request, user):
+def home(request, userid):
     table=MasterTable.objects.all()
-    user=table.filter(user=user)
+    user=table.filter(userid=userid)
     sections=[]
     pages=[]
     for i in user:
@@ -44,6 +49,7 @@ def addUser(request):
         return HttpResponse("True")
     return HttpResponse("False")
 
+@api_view(['GET'])
 def userExist(request,id):
     user=userLogin.objects.all()
     for i in user:
@@ -66,13 +72,14 @@ def landing(request):
     return HttpResponse('<h1>Home Page</h1>')
 
 @api_view(['GET'])
-def pagedata(request,user,section,page):
+def pagedata(request,userid,section,page):
     table=MasterTable.objects.all()
-    pageData=table.filter(user=user,section=section,page=page)
+    pageData=table.filter(user=userid,section=section,page=page)
     serializer= MasterTableSerializer(pageData,many=True)
     return Response(serializer.data)
+
 @api_view(['POST'])
-def pagedatacreate(request,user,section,page):
+def pagedatacreate(request,userid,section,page):
     dataReceived = request.data
     serializer = MasterTableSerializer(data=dataReceived)
     if MasterTable.objects.filter(**dataReceived).exists():
@@ -80,24 +87,25 @@ def pagedatacreate(request,user,section,page):
     elif serializer.is_valid():
         serializer.save()
     return Response(serializer.data)
+
 @api_view(['PUT'])
 def pagedataupdate(request,user,section,page):
+    dataReceived = request.data
     table=MasterTable.objects.get(user=user,section=section,page=page)
     serializer=MasterTableSerializer(instance=table, data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-    return Response(serializer.data)
+    if MasterTable.objects.filter(**dataReceived).exists():
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+    return Response(status=status.HTTP_403_FORBIDDEN)
         
-    
 @api_view(['GET', 'POST'])
 def renamePage(request):
-    user=request.GET.get('user')
+    userid=request.GET.get('userid')
     section=request.GET.get('section')
     page=request.GET.get('page')
     new_page=request.GET.get('new_page')
-    t=MasterTable.objects.get(user=user, section=section, page=page)
+    t=MasterTable.objects.get(user=userid, section=section, page=page)
     t.page=new_page
     t.save()
-    return redirect('/home/%s' %user)
-    
-
+    return redirect('/home/%s' %userid)
