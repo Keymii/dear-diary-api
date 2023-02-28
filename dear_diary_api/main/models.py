@@ -14,7 +14,7 @@ class MasterTable(models.Model):
     page = models.CharField('Page',max_length=50)
     data = models.TextField() 
     def __str__(self):
-        return self.userid
+        return self.userid.userid
     
 
     

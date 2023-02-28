@@ -50,10 +50,10 @@ def addUser(request):
     return HttpResponse("False")
 
 @api_view(['GET'])
-def userExist(request,id):
+def userExist(request,userid):
     user=userLogin.objects.all()
     for i in user:
-         if str(id)==str(i.userid):
+         if str(userid)==str(i.userid):
             return HttpResponse("True")
         
     return HttpResponse("False")
@@ -74,7 +74,7 @@ def landing(request):
 @api_view(['GET'])
 def pagedata(request,userid,section,page):
     table=MasterTable.objects.all()
-    pageData=table.filter(user=userid,section=section,page=page)
+    pageData=table.filter(userid=userid,section=section,page=page)
     serializer= MasterTableSerializer(pageData,many=True)
     return Response(serializer.data)
 
@@ -86,26 +86,27 @@ def pagedatacreate(request,userid,section,page):
         return Response(status=status.HTTP_403_FORBIDDEN)
     elif serializer.is_valid():
         serializer.save()
-    return Response(serializer.data)
+    return Response(dataReceived)
 
 @api_view(['PUT'])
-def pagedataupdate(request,user,section,page):
+def pagedataupdate(request,userid,section,page):
     dataReceived = request.data
-    table=MasterTable.objects.get(user=user,section=section,page=page)
+    table=MasterTable.objects.get(userid=userid,section=section,page=page)
     serializer=MasterTableSerializer(instance=table, data=request.data)
-    if MasterTable.objects.filter(**dataReceived).exists():
-        if serializer.is_valid():
+    # if MasterTable.objects.filter(**dataReceived).exists():
+    if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
     return Response(status=status.HTTP_403_FORBIDDEN)
         
-@api_view(['GET', 'POST'])
+@api_view([ 'POST'])
 def renamePage(request):
-    userid=request.GET.get('userid')
-    section=request.GET.get('section')
-    page=request.GET.get('page')
-    new_page=request.GET.get('new_page')
-    t=MasterTable.objects.get(user=userid, section=section, page=page)
+    inUser=request.data
+    userid=inUser['userid']
+    section=inUser['section']
+    page=inUser['page']
+    new_page=inUser['new_page']
+    t=MasterTable.objects.get(userid=userid,section=section,page=page)
     t.page=new_page
     t.save()
     return redirect('/home/%s' %userid)
