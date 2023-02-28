@@ -1,8 +1,11 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from main.models import MasterTable,userLogin
-from django.http import HttpResponse,JsonResponse
-from .serializers import userLoginSerializer
+from main.models import MasterTable,userLogin, Session
+from django.http import HttpResponse
+from django.shortcuts import redirect, render
+from django.contrib.auth.hashers import check_password
+from .serializers import userLoginSerializer,MasterTableSerializer 
+from rest_framework import status
 
 @api_view(['Get'])
 def api(request):
@@ -12,9 +15,46 @@ def api(request):
         'userExist':'checkuser/',
         'userAuthantication':'user/auth/',
         'api':'api/',
-
-    }
+        }
     return Response(ls_api)
+
+def login(request):
+    session_key = request.session.get('session_key')
+    userid=request.POST.get('userid')
+    if session_key:
+        try:
+            session = Session.objects.get(session_key=session_key)
+            return redirect('/home/%s' %userid)
+        except Session.DoesNotExist:
+            pass
+    if request.method=='POST':
+        pswd = request.POST.get('pswd')
+        try:
+            user=userLogin.objects.get(userid=userid)
+            if check_password(pswd, user.pswd):
+                session=Session.create(user, request.session.session_key)
+                request.session['session_key'] = session.session_key
+                return redirect('/home/%s' %userid)
+            
+            else:
+                return render(request, 'login.html', {'error_message': 'Incorrect password.'})
+        except userLogin.DoesNotExist:
+            return render(request, 'login.html', {'error_message': 'User does not exist.'})
+    else:
+        return render(request, 'login.html')
+    
+def logout(request):
+    session_key=request.session.get('session_key')
+    if session_key:
+        try:
+            session=Session.objects.get(session_key=session_key)
+            session.delete()
+        except Session.DoesNotExist:
+            pass
+    request.session.flush()
+    return render(request, 'login.html')
+
+
 
 @api_view(['GET'])
 def home(request, user):
