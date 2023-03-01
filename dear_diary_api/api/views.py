@@ -24,6 +24,7 @@ def api(request):
         }
     return Response(ls_api)
 
+@api_view(['POST'])
 def login(request):
     session_key = request.session.get('session_key')
     userid=request.POST.get('userid')
@@ -49,6 +50,7 @@ def login(request):
     else:
         return render(request, 'login.html')
     
+@api_view(['GET', 'POST'])
 def logout(request):
     session_key=request.session.get('session_key')
     if session_key:
