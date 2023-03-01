@@ -24,35 +24,35 @@ def api(request):
         }
     return Response(ls_api)
 
-@api_view(['POST'])
+@api_view(['GET','POST'])
 def login(request):
-    session_key = request.session.get('session_key')
-    userid=request.POST.get('userid')
+    data=request.data
+    session_key=data['session_key']
+    userid=data['userid']
     if session_key:
         try:
-            session = Session.objects.get(session_key=session_key)
+            session=Session.objects.get(session_key=session_key)
             return HttpResponse(True)
         except Session.DoesNotExist:
             pass
-    if request.method=='POST':
-        pswd = request.POST.get('pswd')
-        try:
-            user=userLogin.objects.get(userid=userid)
-            if check_password(pswd, user.pswd):
-                session1=Session.create(user, request.session.session_key)
-                request.session['session_key'] = session1.session_key
-                return HttpResponse(True)
-            
-            else:
-                return HttpResponse(False)
-        except userLogin.DoesNotExist:
+    pswd=data['pswd']
+    try:
+        user=userLogin.objects.get(userid=userid)
+        if check_password(pswd, user.pswd):
+            session1=Session.create(user, request.session.session_key)
+            request.session['session_key'] = session1.session_key
+            return HttpResponse(True)
+        else:
             return HttpResponse(False)
-    else:
+    except userLogin.DoesNotExist:
         return HttpResponse(False)
+
+    
     
 @api_view(['GET', 'POST'])
 def logout(request):
-    session_key=request.session.get('session_key')
+    data=request.data
+    session_key=data['session_key']
     if session_key:
         try:
             session=Session.objects.get(session_key=session_key)
@@ -60,7 +60,7 @@ def logout(request):
         except Session.DoesNotExist:
             pass
     request.session.flush()
-    return render(request, 'login.html')
+    return HttpResponse(True)
 
 
 
