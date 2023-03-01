@@ -4,6 +4,7 @@ from django.utils import timezone
 # Create your models here.
 class userLogin(models.Model):
     name=models.CharField(max_length=200)
+    email=models.EmailField()
     userid=models.CharField(max_length=14,primary_key=True)
     pswd=models.CharField(max_length=30)
     def __str__(self):
