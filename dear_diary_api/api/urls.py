@@ -10,12 +10,15 @@ urlpatterns=[
     path('renamePage/', views.renamePage),
     path('deletePage/', views.deletePage),
     path('home/<str:userid>/', views.home, name='home'),
+    #url for view of pageData
     path('home/<str:userid>/<str:section>/<str:page>/',views.pagedata),
     #url for creating a new pagedata
     path('home/<str:userid>/<str:section>/<str:page>/createpagedata/',views.pagedatacreate),
     #url for updating a already existing pagadata
     path('home/<str:userid>/<str:section>/<str:page>/updatepagedata/',views.pagedataupdate),
-    path("<str:userid>/",views.userExist),
     path('login/', views.login),
     path('logout/', views.logout),
+
+
+    path("<str:userid>/",views.userExist),
 ]
