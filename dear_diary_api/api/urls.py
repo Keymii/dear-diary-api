@@ -15,5 +15,7 @@ urlpatterns=[
     path('home/<str:userid>/<str:section>/<str:page>/createpagedata/',views.pagedatacreate),
     #url for updating a already existing pagadata
     path('home/<str:userid>/<str:section>/<str:page>/updatepagedata/',views.pagedataupdate),
-    path("<str:userid>/",views.userExist),   
+    path("<str:userid>/",views.userExist),
+    path('login/', views.login),
+    path('logout/', views.logout),
 ]
