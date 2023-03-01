@@ -31,7 +31,7 @@ def login(request):
     if session_key:
         try:
             session = Session.objects.get(session_key=session_key)
-            return redirect('/home/%s' %userid)
+            return HttpResponse(True)
         except Session.DoesNotExist:
             pass
     if request.method=='POST':
@@ -39,16 +39,16 @@ def login(request):
         try:
             user=userLogin.objects.get(userid=userid)
             if check_password(pswd, user.pswd):
-                session=Session.create(user, request.session.session_key)
-                request.session['session_key'] = session.session_key
-                return redirect('/home/%s' %userid)
+                session1=Session.create(user, request.session.session_key)
+                request.session['session_key'] = session1.session_key
+                return HttpResponse(True)
             
             else:
-                return render(request, 'login.html', {'error_message': 'Incorrect password.'})
+                return HttpResponse(False)
         except userLogin.DoesNotExist:
-            return render(request, 'login.html', {'error_message': 'User does not exist.'})
+            return HttpResponse(False)
     else:
-        return render(request, 'login.html')
+        return HttpResponse(False)
     
 @api_view(['GET', 'POST'])
 def logout(request):
