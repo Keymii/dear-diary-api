@@ -62,8 +62,6 @@ def logout(request):
     request.session.flush()
     return HttpResponse(True)
 
-
-
 @api_view(['GET'])
 def home(request, userid):
     table=MasterTable.objects.all()
