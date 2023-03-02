@@ -17,9 +17,9 @@ def api(request):
         'userAuthantication':'user/auth/',
         'api':'api/',
         'renamePage':'renamePage/',
-        'creating pageData':'home/userid/section/page/createpagedata/',
-        'Updating pageData':'home/userid/section/page/updatepagedata/',
-        'Showing pageData':'home/userid/section/page/',
+        'creating pageData':'home/userid/page/createpagedata/',
+        'Updating pageData':'home/userid/page/updatepagedata/',
+        'Showing pageData':'home/userid/page/',
 
         }
     return Response(ls_api)
@@ -66,13 +66,10 @@ def logout(request):
 def home(request, userid):
     table=MasterTable.objects.all()
     user=table.filter(userid=userid)
-    sections=[]
+    sections=[userid]
     pages=[]
-    for i in user:
-        sections.append(i.section)
-    sections=[*set(sections)]
     for section in sections:
-        page=user.filter(section=section)
+        page=user.filter(userid=userid)
         section_page=[]
         for j in page:
             section_page.append(j.page)
@@ -111,14 +108,14 @@ def landing(request):
     return HttpResponse('<h1>Home Page</h1>')
 
 @api_view(['GET'])
-def pagedata(request,userid,section,page):
+def pagedata(request,userid,page):
     table=MasterTable.objects.all()
-    pageData=table.filter(userid=userid,section=section,page=page)
+    pageData=table.filter(userid=userid,page=page)
     serializer= MasterTableSerializer(pageData,many=True)
     return Response(serializer.data)
 
 @api_view(['POST'])
-def pagedatacreate(request,userid,section,page):
+def pagedatacreate(request,userid,page):
     dataReceived = request.data
     serializer = MasterTableSerializer(data=dataReceived)
     if MasterTable.objects.filter(**dataReceived).exists():
@@ -128,9 +125,9 @@ def pagedatacreate(request,userid,section,page):
     return Response(dataReceived)
 
 @api_view(['PUT'])
-def pagedataupdate(request,userid,section,page):
+def pagedataupdate(request,userid,page):
     dataReceived = request.data
-    table=MasterTable.objects.get(userid=userid,section=section,page=page)
+    table=MasterTable.objects.get(userid=userid,page=page)
     serializer=MasterTableSerializer(instance=table, data=request.data)
     if serializer.is_valid():
             serializer.save()
@@ -141,10 +138,9 @@ def pagedataupdate(request,userid,section,page):
 def renamePage(request):
     inUser=request.data
     userid=inUser['userid']
-    section=inUser['section']
     page=inUser['page']
     new_page=inUser['new_page']
-    t=MasterTable.objects.get(userid=userid,section=section,page=page)
+    t=MasterTable.objects.get(userid=userid,page=page)
     t.page=new_page
     t.save()
     return redirect('/home/%s' %userid)
@@ -153,9 +149,8 @@ def renamePage(request):
 def deletePage(request):
     inUser=request.data
     userid=inUser['userid']
-    section=inUser['section']
     page=inUser['page']
-    t=MasterTable.objects.get(userid=userid, section=section, page=page)
+    t=MasterTable.objects.get(userid=userid,page=page)
     t.delete()
     return redirect('/home/%s' %userid)
 

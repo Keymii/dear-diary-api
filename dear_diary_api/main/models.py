@@ -12,7 +12,6 @@ class userLogin(models.Model):
     
 class MasterTable(models.Model):
     userid = models.ForeignKey(userLogin,on_delete=models.CASCADE,default=0)
-    section = models.CharField('Section',max_length=50)
     page = models.CharField('Page',max_length=50)
     data = models.TextField() 
     def __str__(self):
