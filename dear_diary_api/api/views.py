@@ -149,13 +149,14 @@ def renamePage(request):
     t.save()
     return redirect('/home/%s' %userid)
 
-@api_view(['GET', 'DELETE'])
+@api_view(['POST','DELETE'])
 def deletePage(request):
-    user=request.GET.get('user')
-    section=request.GET.get('section')
-    page=request.GET.get('page')
-    t=MasterTable.objects.get(user=user, section=section, page=page)
+    inUser=request.data
+    userid=inUser['userid']
+    section=inUser['section']
+    page=inUser['page']
+    t=MasterTable.objects.get(userid=userid, section=section, page=page)
     t.delete()
-    return redirect('/home/%s' %user)
+    return redirect('/home/%s' %userid)
 
 
