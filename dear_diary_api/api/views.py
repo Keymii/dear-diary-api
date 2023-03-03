@@ -27,25 +27,26 @@ def api(request):
 @api_view(['POST', 'GET'])
 def login(request):
     data=request.data
-    session_key=data['session_key']
-    userid=data['userid']
-    if session_key:
-        try:
-            session=Session.objects.get(session_key=session_key)
-            return HttpResponse(True)
-        except Session.DoesNotExist:
-            pass
-    pswd=data['pswd']
+    session_key=data.get('session_key')
+    userid=data.get('userid')
     try:
-        user=userLogin.objects.get(userid=userid)
-        if check_password(pswd, user.pswd):
-            session1=Session.create(user, request.session.session_key)
-            request.session['session_key'] = session1.session_key
-            return HttpResponse(True)
-        else:
+        session=Session.objects.get(session_key=session_key)
+        return HttpResponse(True)
+    except Session.DoesNotExist:
+        #pass
+        pswd=data.get('pswd')
+        try:
+            user=userLogin.objects.get(userid=userid)
+            print(user)
+            if pswd==user.pswd:
+                session1=Session.create(user, request.session.session_key)
+                request.session['session_key'] = session1.session_key
+                return HttpResponse(True)
+            else:
+                return HttpResponse(False)
+        except userLogin.DoesNotExist:
             return HttpResponse(False)
-    except userLogin.DoesNotExist:
-        return HttpResponse(False)
+    
 
     
     
