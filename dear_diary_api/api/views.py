@@ -24,7 +24,7 @@ def api(request):
         }
     return Response(ls_api)
 
-@api_view(['GET','POST'])
+@api_view(['POST', 'GET'])
 def login(request):
     data=request.data
     session_key=data['session_key']
@@ -134,22 +134,20 @@ def pagedataupdate(request,userid,page):
             return Response(serializer.data)
     return Response(status=status.HTTP_403_FORBIDDEN)
         
-@api_view([ 'POST'])
+@api_view(['GET'])
 def renamePage(request):
-    inUser=request.data
-    userid=inUser['userid']
-    page=inUser['page']
-    new_page=inUser['new_page']
+    userid=request.GET.get('userid')
+    page=request.GET.get('page')
+    new_page=request.GET.get('new_page')
     t=MasterTable.objects.get(userid=userid,page=page)
     t.page=new_page
     t.save()
     return redirect('/home/%s' %userid)
 
-@api_view(['POST','DELETE'])
+@api_view(['GET'])
 def deletePage(request):
-    inUser=request.data
-    userid=inUser['userid']
-    page=inUser['page']
+    userid=request.GET.get('userid')
+    page=request.GET.get('page')
     t=MasterTable.objects.get(userid=userid,page=page)
     t.delete()
     return redirect('/home/%s' %userid)
