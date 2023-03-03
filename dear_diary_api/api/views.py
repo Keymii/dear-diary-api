@@ -29,18 +29,21 @@ def login(request):
     data=request.data
     session_key=data.get('session_key')
     userid=data.get('userid')
+    user=userLogin.objects.get(userid=userid)
     try:
         session=Session.objects.get(session_key=session_key)
-        return HttpResponse(True)
+        if session.user==user:
+            return HttpResponse(True)
+        else:
+            return HttpResponse(False)
     except Session.DoesNotExist:
         #pass
         pswd=data.get('pswd')
         try:
             user=userLogin.objects.get(userid=userid)
             print(user)
-            if pswd==user.pswd:
-                session1=Session.create(user, request.session.session_key)
-                request.session['session_key'] = session1.session_key
+            if not(check_password(pswd,user.pswd)):
+                session1=Session.create(user, session_key)
                 return HttpResponse(True)
             else:
                 return HttpResponse(False)
@@ -53,15 +56,19 @@ def login(request):
 @api_view(['GET', 'POST'])
 def logout(request):
     data=request.data
+    userid=data['userid']
     session_key=data['session_key']
-    if session_key:
-        try:
-            session=Session.objects.get(session_key=session_key)
-            session.delete()
-        except Session.DoesNotExist:
-            pass
-    request.session.flush()
-    return HttpResponse(True)
+    session=Session.objects.get(session_key=session_key)
+    user=userLogin.objects.get(userid=userid)
+    if user==session.user:
+        if session_key:
+            try:
+                session=Session.objects.get(session_key=session_key)
+                session.delete()
+            except Session.DoesNotExist:
+                return HttpResponse(False)
+        request.session.flush()
+        return HttpResponse(True)
 
 @api_view(['GET'])
 def home(request, userid):
