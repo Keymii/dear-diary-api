@@ -134,12 +134,12 @@ def pagedataupdate(request,userid,page):
             return Response(serializer.data)
     return Response(status=status.HTTP_403_FORBIDDEN)
         
-@api_view([ 'POST'])
+@api_view([ 'GET'])
 def renamePage(request):
-    inUser=request.data
-    userid=inUser['userid']
-    page=inUser['page']
-    new_page=inUser['new_page']
+    #inUser=request.data
+    userid=request.GET.get("userid")
+    page=request.GET.get('page')
+    new_page=request.GET.get('new_page')
     t=MasterTable.objects.get(userid=userid,page=page)
     t.page=new_page
     t.save()
