@@ -17,5 +17,6 @@ urlpatterns=[
     path('home/<str:userid>/<str:page>/updatepagedata/',views.pagedataupdate),
     path('login/', views.login),
     path('logout/', views.logout),
+    path('checkLogin/', views.checkLogin),
     path("<str:userid>/",views.userExist),
 ]

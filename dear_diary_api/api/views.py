@@ -7,6 +7,8 @@ from django.contrib.auth.hashers import check_password
 from main.models import userLogin
 from .serializers import userLoginSerializer,MasterTableSerializer 
 from rest_framework import status
+from uuid import uuid4
+from django.utils import timezone
 
 @api_view(['Get'])
 def api(request):
@@ -24,7 +26,7 @@ def api(request):
         }
     return Response(ls_api)
 
-@api_view(['POST', 'GET'])
+'''@api_view(['POST'])
 def login(request):
     data=request.data
     session_key=data.get('session_key')
@@ -48,27 +50,40 @@ def login(request):
             else:
                 return HttpResponse(False)
         except userLogin.DoesNotExist:
-            return HttpResponse(False)
+            return HttpResponse(False)'''
+@api_view(['POST'])
+def login(request):
+    data=request.data
+    userid=data.get('userid')
+    pswd=data.get('pswd')
+    user=userLogin.objects.get(userid=userid, pswd=pswd)
+    session=Session.objects.filter(user=user)
+    if session.exists():
+        session=session.first()
+        return HttpResponse(session.session_key)
+    else:
+        session_key=uuid4()
+        session=Session.objects.create(user=user,session_key=session_key)
+        return HttpResponse(session.session_key)
     
+@api_view(['GET'])
+def checkLogin(request):
+    data=request.query_params
+    session_key=data['session_key']
+    session=Session.objects.filter(session_key=session_key)
+    if session.exists() and ((timezone.now()-session.first().last_activity).total_seconds()>10):
+        session.first().delete()
+        return HttpResponse(False)
+    return HttpResponse(session.exists())
 
-    
-    
-@api_view(['GET', 'POST'])
+ 
+@api_view(['POST'])
 def logout(request):
     data=request.data
-    userid=data['userid']
     session_key=data['session_key']
     session=Session.objects.get(session_key=session_key)
-    user=userLogin.objects.get(userid=userid)
-    if user==session.user:
-        if session_key:
-            try:
-                session=Session.objects.get(session_key=session_key)
-                session.delete()
-            except Session.DoesNotExist:
-                return HttpResponse(False)
-        request.session.flush()
-        return HttpResponse(True)
+    session.delete()
+    return HttpResponse(True)
 
 @api_view(['GET'])
 def home(request, userid):
