@@ -71,7 +71,7 @@ def checkLogin(request):
     data=request.query_params
     session_key=data['session_key']
     session=Session.objects.filter(session_key=session_key)
-    if session.exists() and ((timezone.now()-session.first().last_activity).total_seconds()>10):
+    if session.exists() and ((timezone.now()-session.first().last_activity).total_seconds()>3600):
         session.first().delete()
         return HttpResponse(False)
     return HttpResponse(session.exists())
@@ -157,7 +157,7 @@ def pagedataupdate(request,userid,page):
             return Response(serializer.data)
     return Response(status=status.HTTP_403_FORBIDDEN)
         
-@api_view(['GET'])
+@api_view(['POST'])
 def renamePage(request):
     userid=request.GET.get('userid')
     page=request.GET.get('page')
@@ -167,7 +167,7 @@ def renamePage(request):
     t.save()
     return redirect('/home/%s' %userid)
 
-@api_view(['GET'])
+@api_view(['GET','DELETE'])
 def deletePage(request):
     userid=request.GET.get('userid')
     page=request.GET.get('page')
