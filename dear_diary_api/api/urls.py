@@ -8,7 +8,7 @@ urlpatterns=[
     path('register/',views.addUser),
     path("user/auth/",views.userAuth),
     path('renamePage/', views.renamePage),
-    path('deletePage/', views.deletePage),
+    path('deletePage/<str:userid>/<str:page>', views.deletePage),
     path('home/<str:userid>/', views.home, name='home'),
     path('home/<str:userid>/<str:page>/',views.pagedata),
     #url for creating a new pagedata

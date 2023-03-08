@@ -66,7 +66,7 @@ def login(request):
         session=Session.objects.create(user=user,session_key=session_key)
         return HttpResponse(session.session_key)
     
-@api_view(['GET'])
+@api_view(['GET','POST'])
 def checkLogin(request):
     data=request.query_params
     session_key=data['session_key']
@@ -126,7 +126,7 @@ def userAuth(request):
             return HttpResponse("True")
     return HttpResponse("False")
 
-@api_view(['Get'])
+@api_view(['GET'])
 def landing(request):
     return HttpResponse('<h1>Home Page</h1>')
 
@@ -140,6 +140,8 @@ def pagedata(request,userid,page):
 @api_view(['POST'])
 def pagedatacreate(request,userid,page):
     dataReceived = request.data
+    user=userLogin.objects.all().filter(userid=userid).first()
+    dataReceived['userid']=user.userid
     serializer = MasterTableSerializer(data=dataReceived)
     if MasterTable.objects.filter(**dataReceived).exists():
         return Response(status=status.HTTP_403_FORBIDDEN)
@@ -147,9 +149,12 @@ def pagedatacreate(request,userid,page):
         serializer.save()
     return Response(dataReceived)
 
+
 @api_view(['PUT'])
 def pagedataupdate(request,userid,page):
     dataReceived = request.data
+    user=userLogin.objects.all().filter(userid=userid).first()
+    dataReceived['userid']=user.userid
     table=MasterTable.objects.get(userid=userid,page=page)
     serializer=MasterTableSerializer(instance=table, data=request.data)
     if serializer.is_valid():
@@ -168,12 +173,25 @@ def renamePage(request):
     return redirect('/home/%s' %userid)
 
 @api_view(['GET','DELETE'])
-def deletePage(request):
-    userid=request.GET.get('userid')
-    page=request.GET.get('page')
+def deletePage(request,userid,page):
+    # data=request.query_params
+    # dataReceived = request.data
+    # user=userLogin.objects.all().filter(userid=userid).first()
+    # userid=data['userid']
+    # page=data['page']
     t=MasterTable.objects.get(userid=userid,page=page)
+    print(t.userid)
     t.delete()
     return redirect('/home/%s' %userid)
+    # data=request.data
+    # userid=data['userid']
+    # user=userLogin.objects.all().filter(userid=userid).first()
+    # data['userid']=user.userid
+    # userid=data['userid']
+    # page=data['page']
+    # t=MasterTable.objects.get(userid=userid,page=page)
+    # t.delete()
+    # return redirect('/home/%s' %userid)
 
 @api_view(['GET'])
 def pagewithdata(request, userid):
