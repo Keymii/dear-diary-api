@@ -24,7 +24,7 @@ def api(request):
         }
     return Response(ls_api)
 
-@api_view(['GET','POST'])
+@api_view(['POST', 'GET'])
 def login(request):
     data=request.data
     session_key=data['session_key']
@@ -132,12 +132,11 @@ def pagedataupdate(request,userid,page):
     if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-    return Response(status=status.HTTP_403_FORBIDDEN)
+    return HttpResponse("True")
         
-@api_view([ 'GET'])
+@api_view(['GET'])
 def renamePage(request):
-    #inUser=request.data
-    userid=request.GET.get("userid")
+    userid=request.GET.get('userid')
     page=request.GET.get('page')
     new_page=request.GET.get('new_page')
     t=MasterTable.objects.get(userid=userid,page=page)
@@ -145,13 +144,31 @@ def renamePage(request):
     t.save()
     return redirect('/home/%s' %userid)
 
-@api_view(['POST','DELETE'])
+@api_view(['GET'])
 def deletePage(request):
-    inUser=request.data
-    userid=inUser['userid']
-    page=inUser['page']
+    userid=request.GET.get('userid')
+    page=request.GET.get('page')
     t=MasterTable.objects.get(userid=userid,page=page)
     t.delete()
     return redirect('/home/%s' %userid)
 
+@api_view(['GET'])
+def pagewithdata(request, userid):
+    table=MasterTable.objects.all()
+    user=table.filter(userid=userid)
+    pages=[]
+    datas=[]
+    x=[]
+    for i in user:
+        pages.append(i.page)
+    pages=[*set(pages)]
+    for page in pages:
+        data=user.filter(page=page)
+        for j in data:
+            datas.append(j.data)
+    data1=dict(zip(pages, datas))
+    a=[]
+    for k in data1.items():
+        a.append({"page":k[0],"data":k[1]})
+    return Response(a)
 

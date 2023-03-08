@@ -18,4 +18,5 @@ urlpatterns=[
     path('login/', views.login),
     path('logout/', views.logout),
     path("<str:userid>/",views.userExist),
+    path("pagewithdata/<str:userid>/",views.pagewithdata)
 ]
